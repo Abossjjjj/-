@@ -1,1 +1,197 @@
-const TelegramBot = require('node-telegram-bot-api');const axios = require('axios');const cheerio = require('cheerio');const moment = require('moment');const phonenumbers = require('google-libphonenumber');const fs = require('fs');const path = require('path');const token = '7301883949:AAGI-cJKosJ1vavbPlYLEW137j5qT7tjry0';const bot = new TelegramBot(token, {polling: true});let zzk = 0;bot.onText(/\/start/, async (msg) => {  zzk++;  const chatId = msg.chat.id;  const userName = msg.from.first_name || '';  const userId = msg.from.id || '';  const userUsername = msg.from.username || '';  const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');  const startMessage = `عضو يستخدم البوت…اسم المستخدم : ${userName}يوزر المستخدم : @${userUsername}ايدي المستخدم : ${userId}رقم المستخدم  : ${zzk}الوقت : ${currentTime}ـ @SAGD112`;  const keyboard = {    inline_keyboard: [      [{text: '𝐓𝐢𝐤𝐭𝐨𝐤🎥', callback_data: 'Tik'}, {text: '𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦💌', callback_data: 'IG'}],      [{text: '𝐓𝐰𝐢𝐭𝐭𝐞𝐫[𝐗]🐦', callback_data: 'Tw'}, {text: '𝐒𝐧𝐚𝐩𝐂𝐡𝐚𝐭👻', callback_data: 'Sn'}],      [{text: '𝐘𝐨𝐮𝐓𝐮𝐛𝐞📺', callback_data: 'YT'}, {text: '𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦🔮', callback_data: 'Tele'}],      [{text: '𝐏𝐡𝐨𝐧𝐞📞', callback_data: 'PH'}],      [{text: '- ⚜️ 𝐃𝐞𝐯', url: 'https://t.me/SAGD112'}]    ]  };  await bot.sendMessage(chatId, startMessage, {parse_mode: 'HTML'});  await bot.sendMessage(chatId, `اهلا بك : | ${userName} | مرحبا بك في بوت info SocialMedia اختر الخدمه التي تعجبك من الازرار الشفافه ايضا للحصول على معلوماتك اضغط على  [ /info ]`, {    parse_mode: 'HTML',    reply_markup: keyboard  });});bot.on('callback_query', async (callbackQuery) => {  const action = callbackQuery.data;  const msg = callbackQuery.message;  const chatId = msg.chat.id;  switch(action) {    case 'Tik':      await bot.sendMessage(chatId, 'ارسل اسم المستخدم تيك توك');      bot.once('message', handleTikTok);      break;    case 'IG':      await bot.sendMessage(chatId, 'ارسل اسم المستخدم انستاجرام');      bot.once('message', handleInstagram);      break;    case 'Tw':      await bot.sendMessage(chatId, 'ارسل اسم المستخدم تويتر X');      bot.once('message', handleTwitter);      break;    case 'Sn':      await bot.sendMessage(chatId, 'ارسل اسم المستخدم سناب شات');      bot.once('message', handleSnapchat);      break;    case 'YT':      await bot.sendMessage(chatId, 'ارسل اسم المستخدم يوتيوب');      bot.once('message', handleYouTube);      break;    case 'Tele':      await bot.sendMessage(chatId, 'ارسل اسم المستخدم الذي تريد تبحث عليه في التيليجرام');      bot.once('message', handleTelegram);      break;    case 'PH':      await bot.sendMessage(chatId, 'ارسل رقم الهاتف بالصيغه الدوليه');      bot.once('message', handlePhoneNumber);      break;  }});async function handleTikTok(msg) {  const chatId = msg.chat.id;  const username = msg.text.replace('@', '');  try {    const response = await axios.get(`https://www.tiktok.com/@${username}`, {      headers: {        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'      }    });    const $ = cheerio.load(response.data);    const userData = JSON.parse($('script#__NEXT_DATA__').html()).props.pageProps.userInfo;    const message = `═════════𝚃𝙸𝙺𝚃𝙾𝙺═══════════𝐍𝐚𝐦𝐞 ⇾ ${userData.user.nickname}𝐈𝐝 ⇾ ${userData.user.id}𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞 ⇾ @${username}𝐅𝐨𝐥𝐥𝐨𝐰𝐞𝐫𝐬 ⇾ ${userData.stats.followerCount}𝐅𝐨𝐥𝐥𝐨𝐰𝐢𝐧𝐠 ⇾ ${userData.stats.followingCount}𝐋𝐢𝐤𝐞𝐬 ⇾ ${userData.stats.heartCount}𝐕𝐢𝐝𝐞𝐨𝐬 ⇾ ${userData.stats.videoCount}𝐁𝐢𝐨 ⇾ ${userData.user.signature}𝐔𝐫𝐥 ⇾ https://www.tiktok.com/@${username}═════════𝚃𝙸𝙺𝚃𝙾𝙺═══════════    `;    await bot.sendMessage(chatId, message, {parse_mode: 'HTML'});  } catch (error) {    await bot.sendMessage(chatId, 'حدث خطأ أثناء جلب معلومات TikTok.');  }  await bot.sendMessage(chatId, 'اضغط [ /start ] للرجوع الى القائمه', {parse_mode: 'HTML'});}async function handleInstagram(msg) {  const chatId = msg.chat.id;  const username = msg.text.replace('@', '');  try {    const response = await axios.get(`https://www.instagram.com/${username}/?__a=1`);    const userData = response.data.graphql.user;    const message = `═════════𝙸𝚗𝚜𝚝𝚊𝚐𝚛𝚊𝚖═══════════𝐍𝐚𝐦𝐞 ⇾ ${userData.full_name}𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞 ⇾ @${username}𝐈𝐝 ⇾ ${userData.id}𝐅𝐨𝐥𝐥𝐨𝐰𝐞𝐫𝐬 ⇾ ${userData.edge_followed_by.count}𝐅𝐨𝐥𝐥𝐨𝐰𝐢𝐧𝐠 ⇾ ${userData.edge_follow.count}𝐏𝐨𝐬𝐭𝐬 : ${userData.edge_owner_to_timeline_media.count}𝐏𝐫𝐢𝐯𝐚𝐭𝐞𝐥𝐲 ⇾ ${userData.is_private}𝐔𝐫𝐥 ⇾ https://www.instagram.com/${username}═════════𝙸𝚗𝚜𝚝𝚊𝚐𝚛𝚊𝚖═══════════    `;    const profilePicUrl = userData.profile_pic_url_hd;    const profilePicPath = path.join(__dirname, `${username}.jpg`);        const writer = fs.createWriteStream(profilePicPath);    const response = await axios({      url: profilePicUrl,      method: 'GET',      responseType: 'stream'    });    response.data.pipe(writer);    await new Promise((resolve, reject) => {      writer.on('finish', resolve);      writer.on('error', reject);    });    await bot.sendPhoto(chatId, profilePicPath, {caption: message, parse_mode: 'HTML'});    fs.unlinkSync(profilePicPath);  } catch (error) {    await bot.sendMessage(chatId, 'حدث خطأ أثناء جلب معلومات Instagram.');  }  await bot.sendMessage(chatId, 'اضغط [ /start ] للرجوع الى القائمه', {parse_mode: 'HTML'});}async function handleTwitter(msg) {  const chatId = msg.chat.id;  const username = msg.text.replace('@', '');  try {    const response = await axios.get(`https://livecounts.io/twitter-live-follower-counter/${username}`);    const $ = cheerio.load(response.data);        const name = $('meta[name="name"]').attr('content');    const bio = $('meta[name="description"]').attr('content');    const profilePicUrl = $('meta[property="og:image"]').attr('content');    const userId = $('meta[name="userId"]').attr('content');    const message = `═════════𝚃𝚠𝚒𝚝𝚝𝚎𝚛 𝚇═══════════𝐍𝐚𝐦𝐞 ⇾ ${name}𝐁𝐢𝐨 ⇾ ${bio}𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞 ⇾ @${username}𝐈𝐝 ⇾ ${userId}𝐔𝐫𝐥 ⇾ https://twitter.com/${username}═════════𝚃𝚠𝚒𝚝𝚝𝚎𝚛 𝚇═══════════    `;    const profilePicPath = path.join(__dirname, `${username}.jpg`);    const writer = fs.createWriteStream(profilePicPath);    const response = await axios({      url: profilePicUrl,      method: 'GET',      responseType: 'stream'    });    response.data.pipe(writer);    await new Promise((resolve, reject) => {      writer.on('finish', resolve);      writer.on('error', reject);    });    await bot.sendPhoto(chatId, profilePicPath, {caption: message, parse_mode: 'HTML'});    fs.unlinkSync(profilePicPath);  } catch (error) {    await bot.sendMessage(chatId, 'حدث خطأ أثناء جلب معلومات Twitter.');  }  await bot.sendMessage(chatId, 'اضغط [ /start ] للرجوع الى القائمه', {parse_mode: 'HTML'});}async function handleSnapchat(msg) {  const chatId = msg.chat.id;  const username = msg.text.replace('@', '');  try {    const response = await axios.get(`https://www.snapchat.com/add/${username}`);    const $ = cheerio.load(response.data);    const name = $('meta[property="og:title"]').attr('content');    const bio = $('meta[name="description"]').attr('content');    const profilePicUrl = $('meta[property="og:image"]').attr('content');    const message = `═════════𝚂𝚗𝚊𝚙𝚌𝚑𝚊𝚝═══════════𝐍𝐚𝐦𝐞 ⇾ ${name}𝐁𝐢𝐨 ⇾ ${bio}𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞 ⇾ @${username}𝐔𝐫𝐥 ⇾ https://www.snapchat.com/add/${username}═════════𝚂𝚗𝚊𝚙𝚌𝚑𝚊𝚝═══════════    `;    const profilePicPath = path.join(__dirname, `${username}.jpg`);    const writer = fs.createWriteStream(profilePicPath);    const response = await axios({      url: profilePicUrl,      method: 'GET',      responseType: 'stream'    });    response.data.pipe(writer);    await new Promise((resolve, reject) => {      writer.on('finish', resolve);      writer.on('error', reject);    });    await bot.sendPhoto(chatId, profilePicPath, {caption: message, parse_mode: 'HTML'});    fs.unlinkSync(profilePicPath);  } catch (error) {    await bot.sendMessage(chatId, 'حدث خطأ أثناء جلب معلومات Snapchat.');  }    await bot.sendMessage(chatId, 'اضغط [ /start ] للرجوع الى القائمه', {parse_mode: 'HTML'});}// ... (الكود السابق يبقى كما هو)async function handleYouTube(msg) {  const chatId = msg.chat.id;  const username = msg.text.replace('@', '');  try {    const response = await axios.get(`https://www.youtube.com/@${username}`);    const $ = cheerio.load(response.data);    const name = $('meta[property="og:title"]').attr('content').replace(' - YouTube', '');    const bio = $('meta[name="description"]').attr('content');    const subscribers = $('meta[itemprop="interactionCount"]').attr('content');    const profilePicUrl = $('meta[property="og:image"]').attr('content');    const message = `═════════𝚈𝚘𝚞𝚃𝚞𝚋𝚎═══════════𝐍𝐚𝐦𝐞 ⇾ ${name}𝐒𝐮𝐛𝐬𝐜𝐫𝐢𝐛𝐞𝐫𝐬 ⇾ ${subscribers}𝐁𝐢𝐨 ⇾ ${bio}𝐔𝐫𝐥 ⇾ https://www.youtube.com/@${username}═════════𝚈𝚘𝚞𝚃𝚞𝚋𝚎═══════════    `;    const profilePicPath = path.join(__dirname, `${username}.jpg`);    const writer = fs.createWriteStream(profilePicPath);    const imageResponse = await axios({      url: profilePicUrl,      method: 'GET',      responseType: 'stream'    });    imageResponse.data.pipe(writer);    await new Promise((resolve, reject) => {      writer.on('finish', resolve);      writer.on('error', reject);    });    await bot.sendPhoto(chatId, profilePicPath, {caption: message, parse_mode: 'HTML'});    fs.unlinkSync(profilePicPath);  } catch (error) {    await bot.sendMessage(chatId, 'حدث خطأ أثناء جلب معلومات YouTube.');  }  await bot.sendMessage(chatId, 'اضغط [ /start ] للرجوع الى القائمه', {parse_mode: 'HTML'});}async function handleTelegram(msg) {  const chatId = msg.chat.id;  const username = msg.text.replace('@', '');  try {    const response = await axios.get(`https://t.me/${username}`);    const $ = cheerio.load(response.data);    const name = $('meta[property="og:title"]').attr('content');    const bio = $('meta[property="og:description"]').attr('content');    const profilePicUrl = $('meta[property="og:image"]').attr('content');    const message = `═════════𝚃𝚎𝚕𝚎𝚐𝚛𝚊𝚖═══════════𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞 ⇾ @${username}𝐍𝐚𝐦𝐞 ⇾ ${name}𝐁𝐢𝐨 ⇾ ${bio}𝐔𝐫𝐥 ⇾ https://t.me/${username}═════════𝚃𝚎𝚕𝚎𝚐𝚛𝚊𝚖═══════════    `;    const profilePicPath = path.join(__dirname, `${username}.jpg`);    const writer = fs.createWriteStream(profilePicPath);    const imageResponse = await axios({      url: profilePicUrl,      method: 'GET',      responseType: 'stream'    });    imageResponse.data.pipe(writer);    await new Promise((resolve, reject) => {      writer.on('finish', resolve);      writer.on('error', reject);    });    await bot.sendPhoto(chatId, profilePicPath, {caption: message, parse_mode: 'HTML'});    fs.unlinkSync(profilePicPath);  } catch (error) {    await bot.sendMessage(chatId, 'حدث خطأ أثناء جلب معلومات Telegram.');  }  await bot.sendMessage(chatId, 'اضغط [ /start ] للرجوع الى القائمه', {parse_mode: 'HTML'});}async function handlePhoneNumber(msg) {  const chatId = msg.chat.id;  const phoneNumber = msg.text;  try {    const phoneUtil = phonenumbers.PhoneNumberUtil.getInstance();    const number = phoneUtil.parse(phoneNumber);        const country = phoneUtil.getRegionCodeForNumber(number);    const timeZones = phonenumbers.timezonesForNumber(number);    const carrier = phonenumbers.carrierForNumber(number);    const message = `═════════𝙸𝚗𝚏𝚘𝙿𝚑𝚘𝚗𝚎═══════════Phone Number: ${phoneNumber}Country: ${country}Timezone: ${timeZones.join(', ')}Carrier: ${carrier || 'Unknown'}═════════𝙸𝚗𝚏𝚘𝙿𝚑𝚘𝚗𝚎═══════════    `;    await bot.sendMessage(chatId, message, {parse_mode: 'HTML'});  } catch (error) {    await bot.sendMessage(chatId, 'حدث خطأ أثناء تحليل رقم الهاتف. تأكد من إدخال الرقم بالصيغة الدولية الصحيحة.');  }  await bot.sendMessage(chatId, 'اضغط [ /start ] للرجوع الى القائمه', {parse_mode: 'HTML'});}bot.onText(/\/info/, async (msg) => {  const chatId = msg.chat.id;  const userName = msg.from.first_name || '';  const userId = msg.from.id || '';  const userUsername = msg.from.username || '';  const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');  const infoMessage = `ـــــــــــــــــــــــــــــــــــــــاسمك : ${userName}يوزرك : @${userUsername}الايدي : ${userId}الوقت : ${currentTime}البايو : (Not available in Telegram Bot API)ـ @SAGD112`;  await bot.sendMessage(chatId, infoMessage, {parse_mode: 'HTML'});});// Error handlingbot.on('polling_error', (error) => {  console.log(error);});console.log('Bot is running...');
+const TelegramBot = require('node-telegram-bot-api');
+const axios = require('axios');
+const uuid = require('uuid');
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.send('Bot is running...');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+// تكوين البوت - تأكد من استبدال 'YOUR_BOT_TOKEN' بالرمز الفعلي لبوتك
+const bot = new TelegramBot('7252078284:AAFt6ySoKDAJx-6wbg435qnU-_ramrgRL8Y', { polling: true });
+
+// دالة لإنشاء user agent عشوائي
+function generateUserAgent() {
+    const userAgents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.138 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.138 Safari/537.36",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0 Mobile/15E148 Safari/604.1",
+        "Mozilla/5.0 (iPad; CPU OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+    ];
+    return userAgents[Math.floor(Math.random() * userAgents.length)];
+}
+
+// دالة للنوم (مهلة)
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// دالة للتعامل مع أخطاء الشبكة وإعادة المحاولة في حال الخطأ 429
+async function handleNetworkRequest(requestPromise) {
+    try {
+        return await requestPromise;
+    } catch (error) {
+        if (error.response && error.response.status === 429) {
+            console.log('تم الوصول إلى الحد الأقصى للطلبات. الانتظار 60 ثانية.');
+            await sleep(60000); // الانتظار 60 ثانية قبل إعادة المحاولة
+            return await requestPromise;
+        } else {
+            console.error('Network Error:', error.message);
+            throw error;
+        }
+    }
+}
+
+// دالة لتنزيل صورة الملف الشخصي
+async function downloadProfilePicture(url, username) {
+    if (!url) return 'default.jpg';
+
+    const profile_pic_path = `${username}.jpg`;
+    const writer = fs.createWriteStream(profile_pic_path);
+
+    try {
+        const response = await axios({
+            url,
+            method: 'GET',
+            responseType: 'stream'
+        });
+        response.data.pipe(writer);
+        await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+        return profile_pic_path;
+    } catch (error) {
+        console.error('Error downloading profile picture:', error);
+        return 'default.jpg';
+    }
+}
+
+// المعالج الرئيسي لأمر /ig
+bot.onText(/\/ig (.+)/, async (msg, match) => {
+    const chatId = msg.chat.id; // تخزين chatId هنا
+
+    try {
+        const user = match[1].trim();
+
+        const csr = uuid.v4().replace(/-/g, "");
+        const uid = uuid.v4();
+
+        const headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Host": "i.instagram.com",
+            "Connection": "Keep-Alive",
+            "User-Agent": generateUserAgent(),
+            "Cookie": `mid=YwvCRAABAAEsZcmT0OGJdPu3iLUs; csrftoken=${csr}`,
+            "Cookie2": "$Version=1",
+            "Accept-Language": "en-US",
+            "X-IG-Capabilities": "AQ==",
+            "Accept-Encoding": "gzip",
+        };
+
+        const data = {
+            q: user,
+            device_id: `android${uid}`,
+            guid: uid,
+            _csrftoken: csr
+        };
+
+        // الطلب الأول إلى Instagram API
+        const response = await handleNetworkRequest(
+            axios.post('https://i.instagram.com/api/v1/users/lookup/', data, { headers })
+        );
+        const res = response.data;
+
+        const email = res.obfuscated_email;
+        const phone = res.obfuscated_phone;
+        const isPrivate = res.user.is_private;
+        const fbLogin = res.fb_login_option;
+        const whatsappReset = res.can_wa_reset;
+        const smsReset = res.can_sms_reset;
+        const emailReset = res.can_email_reset;
+        const hasValidPhone = res.has_valid_phone;
+        const isVerified = res.user.is_verified;
+        const profilePicUrl = res.user.profile_pic_url;
+
+
+        // تنزيل صورة الملف الشخصي
+        const profile_pic_path = await downloadProfilePicture(profilePicUrl, user);
+
+        // الطلب الثاني للحصول على معلومات الملف الشخصي للمستخدم
+        const headers2 = {
+            'accept': '*/*',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'ar,en;q=0.9',
+            'cookie': `ig_did=${uuid.v4()}; datr=8J8TZD9P4GjWjawQJMcnRdV_; mid=ZBOf_gALAAGhvjQbR29aVENHIE4Z; ig_nrcb=1; csrftoken=5DoPPeHPd4nUej9JiwCdkvwwmbmkDWpy; ds_user_id=56985317140; dpr=1.25`,
+            'referer': `https://www.instagram.com/${user}/?hl=ar`,
+            'user-agent': generateUserAgent(),
+            'x-csrftoken': '5DoPPeHPd4nUej9JiwCdkvwwmbmkDWpy',
+            'x-ig-app-id': '936619743392459',
+            'x-requested-with': 'XMLHttpRequest',
+        };
+
+        const profileResponse = await handleNetworkRequest(
+            axios.get(`https://www.instagram.com/api/v1/users/web_profile_info/?username=${user}`, { headers: headers2 })
+        );
+        const rr = profileResponse.data;
+
+        const id = rr.data.user.id;
+        const name = rr.data.user.full_name;
+        const bio = rr.data.user.biography;
+        const followers = rr.data.user.edge_followed_by.count;
+        const following = rr.data.user.edge_follow.count;
+
+        const re = await handleNetworkRequest(
+            axios.get(`https://o7aa.pythonanywhere.com/?id=${id}`)
+        );
+        const date = re.data.date;
+
+        const message = `
+⋘─────━*🌟 معلومات انستغرام 🌟*━─────⋙
+💬 الاسم ⇾ ${name}
+🔗 اسم المستخدم ⇾ @${user}
+🆔 معرف الحساب ⇾ ${id}
+👥 المتابعون ⇾ ${followers}
+👤 المتابعين ⇾ ${following}
+📄 السيرة الذاتية ⇾ ${bio}
+📅 تاريخ الحساب ⇾ ${date}
+🔗 الرابط ⇾ https://www.instagram.com/${user}
+📧 البريد الالكتروني ⇾ ${email}
+📞 الهاتف ⇾ ${phone}
+🔒 حساب خاص ⇾ ${isPrivate}
+📱 خيارات تسجيل الدخول بالفيسبوك ⇾ ${fbLogin}
+📱 إعادة تعيين الواتساب ⇾ ${whatsappReset}
+📧 إعادة تعيين البريد ⇾ ${emailReset}
+📞 هاتف صالح ⇾ ${hasValidPhone}
+✔️ حساب موثق ⇾ ${isVerified}
+⋘─────━*🌟 انستغرام 🌟*━─────⋙
+👨‍💻 المطور: @SAGD112 | @SJGDDW
+        `;
+
+        // إرسال الرسالة مع الصورة
+        await bot.sendPhoto(chatId, profile_pic_path, { caption: message, parse_mode: 'HTML' });
+
+        // حذف ملف الصورة الشخصية بعد الإرسال
+        if (profile_pic_path !== 'default.jpg') {
+            fs.unlinkSync(profile_pic_path);
+        }
+
+    } catch (e) {
+        console.error('Main error:', e);
+        bot.sendMessage(chatId, `حدث خطأ: ${e.message}`);
+    }
+});
+
+// بدء تشغيل البوت
+bot.on('polling_error', (error) => {
+    console.log('Polling error:', error);
+});
+
+console.log('Bot is running...');
